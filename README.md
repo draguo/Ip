@@ -28,7 +28,7 @@ $location = $service->toLocation($ip);
 支持计划
 - [x] 淘宝 api
 - [x] 高德地图
-- [ ] 百度地图
+- [x] 百度地图
 - [ ] ipip.net api
 - [ ] ipip.net 数据库
 - [ ] 纯真数据库

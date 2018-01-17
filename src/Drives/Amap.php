@@ -55,7 +55,7 @@ class Amap implements Transform
      * [country,province,city,adcode,lng, // 精度lat, // 维度 isp, // 服务商 ]
      *
      */
-    public function transformRequest($request)
+    private function transformRequest($request)
     {
         $outArr  = [
             'country'  => '',

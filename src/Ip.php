@@ -18,6 +18,7 @@ class Ip
     public function __construct(array $config = [])
     {
         $this->config = new Config($config);
+
         if ( ! empty($config['driver'])) {
             $this->setDefaultDriver($config['driver']);
         }
@@ -30,7 +31,7 @@ class Ip
                         ->toLocation($ip, $this->config);
         } catch (\Exception $exception) {
             return [
-                'status'  => '0',
+                'status'  => 0,
                 'message' => $exception->getMessage()
             ];
         }

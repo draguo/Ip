@@ -15,5 +15,12 @@ interface Transform
      */
     public function toLocation($ip, Config $config);
 
+    /**
+     * @param        $ip
+     * @param Config $config
+     *
+     * @return json
+     */
     public function toLocationRaw($ip, Config $config);
+
 }
