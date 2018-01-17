@@ -3,12 +3,11 @@
 namespace Draguo\Ip\Drives;
 
 
-use Draguo\Ip\Contracts\Transform;
 use Draguo\Ip\Exceptions\InvalidRequest;
 use Draguo\Ip\Support\Config;
 use Draguo\Ip\Support\HttpRequest;
 
-class Baidu implements Transform
+class Baidu extends Driver
 {
 
     use HttpRequest;
@@ -39,20 +38,23 @@ class Baidu implements Transform
         if ($request['status'] !== 0) {
             throw new InvalidRequest($request['message']);
         }
+
         return $request;
     }
 
     private function transformRequest($request)
     {
-        $content = $request['content'];
+        $this->transformResult = $request['content'];
+
         return [
             'country'  => '',
-            'province' => $content['address_detail']['province'],
-            'city'     => $content['address_detail']['city'],
+            'province' => $this->handleUndefinedIndex('address_detail.province'),
+            'city'     => $this->handleUndefinedIndex('address_detail.city'),
             'adcode'   => '',
-            'lng'      => $content['point']['x'],
-            'lat'      => $content['point']['y'],
+            'lng'      => $this->handleUndefinedIndex('point.x'),
+            'lat'      => $this->handleUndefinedIndex('point.y'),
             'isp'      => ''
         ];
     }
+
 }

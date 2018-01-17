@@ -55,7 +55,7 @@ class Ip
         return $this;
     }
 
-    public function makeDriver($config)
+    private function makeDriver($config)
     {
         $driverClass = $this->getClassName();
 
