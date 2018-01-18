@@ -1,16 +1,12 @@
 <?php
-/**
- * author: draguo
- */
 
 namespace Draguo\Ip\Drives;
 
-
-use Draguo\Ip\Contracts\Transform;
+use Draguo\Ip\Exceptions\InvalidRequest;
 use Draguo\Ip\Support\Config;
 use Draguo\Ip\Support\HttpRequest;
 
-class Taobao implements Transform
+class Taobao extends Driver
 {
     use HttpRequest;
 
@@ -27,8 +23,12 @@ class Taobao implements Transform
             'ip' => $ip
         ];
 
-        $request = $this->getRequest(self::ENDPOINT, $query);
-        return json_decode($request,true);
+        $request = json_decode($this->getRequest(self::ENDPOINT, $query), true);
+        if ($request['code'] !== 0) {
+            throw new InvalidRequest($request['data']);
+        }
+
+        return $request;
     }
 
     /**
@@ -40,20 +40,16 @@ class Taobao implements Transform
      */
     public function transformRequest($request)
     {
-        $outArr  = [
-            'country'  => '',
-            'province' => '',
-            'city'     => '',
-            'adcode'   => '',
+        $this->transformResult = $request['data'];
+
+        return [
+            'country'  => $this->handleUndefinedIndex('country'),
+            'province' => $this->handleUndefinedIndex('region'),
+            'city'     => $this->handleUndefinedIndex('city'),
+            'adcode'   => $this->handleUndefinedIndex('city_id'),
             'lng'      => '',
             'lat'      => '',
-            'isp'      => ''
+            'isp'      => $this->handleUndefinedIndex('isp')
         ];
-        $keys = array_keys($outArr);
-        $request['data']['adcode'] = $request['data']['city_id'];
-        $request['data']['province'] = $request['data']['region'];
-        $needArr = array_intersect_key($request['data'], array_flip((array)$keys));
-
-        return array_merge($outArr, $needArr);
     }
 }

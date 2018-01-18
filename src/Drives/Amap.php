@@ -2,13 +2,11 @@
 
 namespace Draguo\Ip\Drives;
 
-
-use Draguo\Ip\Contracts\Transform;
 use Draguo\Ip\Exceptions\InvalidRequest;
 use Draguo\Ip\Support\Config;
 use Draguo\Ip\Support\HttpRequest;
 
-class Amap implements Transform
+class Amap extends Driver
 {
 
     use HttpRequest;
@@ -45,6 +43,7 @@ class Amap implements Transform
         if ($request['status'] == 0) {
             throw new InvalidRequest($request['info']);
         }
+
         return $request;
     }
 
@@ -57,18 +56,16 @@ class Amap implements Transform
      */
     private function transformRequest($request)
     {
-        $outArr  = [
+        $this->transformResult = $request;
+
+        return [
             'country'  => '',
-            'province' => '',
-            'city'     => '',
-            'adcode'   => '',
+            'province' => $this->handleUndefinedIndex('province'),
+            'city'     => $this->handleUndefinedIndex('city'),
+            'adcode'   => $this->handleUndefinedIndex('adcode'),
             'lng'      => '',
             'lat'      => '',
             'isp'      => ''
         ];
-        $keys    = ['province', 'city', 'adcode'];
-        $needArr = array_intersect_key($request, array_flip((array)$keys));
-
-        return array_merge($outArr, $needArr);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Draguo\Ip;
 
+use Draguo\Ip\Exceptions\InvalidRequest;
 use Draguo\Ip\Support\Config;
 
 class Ip
@@ -58,6 +59,10 @@ class Ip
     private function makeDriver($config)
     {
         $driverClass = $this->getClassName();
+
+        if (!class_exists($driverClass)) {
+            throw new \Exception('driver does not exist');
+        }
 
         return new $driverClass($config);
     }
