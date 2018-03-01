@@ -17,6 +17,11 @@
             "Draguo\\Ip\\": "src"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Draguo\\Ding\\Tests\\": "tests"
+        }
+    },
     "require-dev": {
         "phpunit/phpunit": "^5.7"
     }
