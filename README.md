@@ -1,4 +1,7 @@
 ### 通过ip获取中文地理位置
+<p align="center">
+<a href="https://travis-ci.org/draguo/Ip"><img src="https://travis-ci.org/draguo/Ip.svg?branch=master" alt="Build Status"></a>
+</p>
 
 ## 说明
 依赖于各家提供的 api
