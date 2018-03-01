@@ -8,7 +8,12 @@ class AmapTest extends TestCase
 {
     private function app()
     {
-        return new Ip();
+        $config = [
+            'driver' => 'amap',
+            'key' => 'f4ba346f41afbdc1d3f7b277a3db7ff4'
+        ];
+
+        return new Ip($config);
     }
 
     public function testTransform()
