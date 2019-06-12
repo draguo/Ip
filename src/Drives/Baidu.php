@@ -4,7 +4,6 @@ namespace Draguo\Ip\Drives;
 
 
 use Draguo\Ip\Exceptions\InvalidRequest;
-use Draguo\Ip\Support\Config;
 use Draguo\Ip\Support\HttpRequest;
 
 class Baidu extends Driver
@@ -16,44 +15,45 @@ class Baidu extends Driver
 
     /**
      * @param string $ip
-     * @param Config $config
      *
      * @return array
      * @throws InvalidRequest
      */
-    public function toLocation($ip, Config $config)
+    public function toLocation($ip)
     {
-        return $this->transformRequest($this->toLocationRaw($ip, $config));
+        return $this->transformRequest($this->toLocationRaw($ip));
     }
 
-    public function toLocationRaw($ip, Config $config)
+    public function toLocationRaw($ip)
     {
         $query = [
-            'ip'   => $ip,
-            'ak'   => $config->get('key'),
+            'ip' => $ip,
+            'ak' => $this->config,
             'coor' => 'gcj02'
         ];
 
         $request = $this->getRequest(self::ENDPOINT, $query);
-        if ($request['status'] !== 0) {
-            throw new InvalidRequest($request['message']);
-        }
+
 
         return $request;
     }
 
     private function transformRequest($request)
     {
-        $this->transformResult = $request['content'];
+        if ($request['status'] !== 0) {
+            throw new InvalidRequest($request['message']);
+        }
+
+        $data = $request['content'];
 
         return [
-            'country'  => '',
-            'province' => $this->handleUndefinedIndex('address_detail.province'),
-            'city'     => $this->handleUndefinedIndex('address_detail.city'),
-            'adcode'   => '',
-            'lng'      => $this->handleUndefinedIndex('point.x'),
-            'lat'      => $this->handleUndefinedIndex('point.y'),
-            'isp'      => ''
+            'country' => '',
+            'province' => $data['address_detail']['province'],
+            'city' => $data['address_detail']['city'],
+            'adcode' => '',
+            'lng' => $data['point']['x'],
+            'lat' => $data['point']['y'],
+            'isp' => ''
         ];
     }
 

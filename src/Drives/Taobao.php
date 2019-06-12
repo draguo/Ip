@@ -3,7 +3,6 @@
 namespace Draguo\Ip\Drives;
 
 use Draguo\Ip\Exceptions\InvalidRequest;
-use Draguo\Ip\Support\Config;
 use Draguo\Ip\Support\HttpRequest;
 
 class Taobao extends Driver
@@ -12,44 +11,51 @@ class Taobao extends Driver
 
     const ENDPOINT = 'http://ip.taobao.com/service/getIpInfo.php';
 
-    public function toLocation($ip, Config $config)
+    /**
+     * @param string $ip
+     * @return array
+     * @throws InvalidRequest
+     */
+    public function toLocation($ip)
     {
-        return $this->transformRequest($this->toLocationRaw($ip, $config));
+        return $this->transformRequest($this->toLocationRaw($ip));
     }
 
-    public function toLocationRaw($ip, Config $config)
+    /**
+     * @param $ip
+     * @return \Draguo\Ip\Contracts\json|mixed
+     */
+    public function toLocationRaw($ip)
     {
         $query = [
             'ip' => $ip
         ];
 
         $request = json_decode($this->getRequest(self::ENDPOINT, $query), true);
-        if ($request['code'] !== 0) {
-            throw new InvalidRequest($request['data']);
-        }
+
 
         return $request;
     }
 
     /**
      * @param $request
-     *
      * @return array
-     * [country,province,city,adcode,lng, // 精度lat, // 维度 isp, // 服务商 ]
-     *
+     * @throws InvalidRequest
      */
     public function transformRequest($request)
     {
-        $this->transformResult = $request['data'];
-
+        if ($request['code'] !== 0) {
+            throw new InvalidRequest($request['data']);
+        }
+        $data = $request['data'];
         return [
-            'country'  => $this->handleUndefinedIndex('country'),
-            'province' => $this->handleUndefinedIndex('region'),
-            'city'     => $this->handleUndefinedIndex('city'),
-            'adcode'   => $this->handleUndefinedIndex('city_id'),
-            'lng'      => '',
-            'lat'      => '',
-            'isp'      => $this->handleUndefinedIndex('isp')
+            'country' => $data['country'],
+            'province' => $data['region'],
+            'city' => $data['city'],
+            'adcode' => $data['city_id'],
+            'lng' => '',
+            'lat' => '',
+            'isp' => $data['isp'],
         ];
     }
 }

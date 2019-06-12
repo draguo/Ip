@@ -3,7 +3,6 @@
 namespace Draguo\Ip\Drives;
 
 use Draguo\Ip\Exceptions\InvalidRequest;
-use Draguo\Ip\Support\Config;
 use Draguo\Ip\Support\HttpRequest;
 
 class Amap extends Driver
@@ -15,57 +14,51 @@ class Amap extends Driver
 
     /**
      * @param string $ip
-     * @param Config $config
      *
      * @return array
      * @throws InvalidRequest
      */
-    public function toLocation($ip, Config $config)
+    public function toLocation($ip)
     {
-        return $this->transformRequest($this->toLocationRaw($ip, $config));
+        return $this->transformRequest($this->toLocationRaw($ip));
     }
 
     /**
      * @param        $ip
-     * @param Config $config
      *
      * @return array
-     * @throws InvalidRequest
      */
-    public function toLocationRaw($ip, Config $config)
+    public function toLocationRaw($ip)
     {
-        $query = [
-            'key' => $config->get('key'),
-            'ip'  => $ip,
-        ];
-
-        $request = $this->getRequest(self::ENDPOINT, $query);
-        if ($request['status'] == 0) {
-            throw new InvalidRequest($request['info']);
-        }
+        $request = $this->getRequest(self::ENDPOINT, [
+            'key' => $this->config,
+            'ip' => $ip,
+        ]);
 
         return $request;
     }
 
     /**
      * @param $request
-     *
      * @return array
-     * [country,province,city,adcode,lng, // 精度lat, // 维度 isp, // 服务商 ]
-     *
+     * @throws InvalidRequest
      */
     private function transformRequest($request)
     {
-        $this->transformResult = $request;
-
+        if ($request['infocode'] != 10000) {
+            throw  new InvalidRequest($request['info']);
+        }
+        if (!$request['province']) {
+            throw  new InvalidRequest('amap not support');
+        }
         return [
-            'country'  => '',
-            'province' => $this->handleUndefinedIndex('province'),
-            'city'     => $this->handleUndefinedIndex('city'),
-            'adcode'   => $this->handleUndefinedIndex('adcode'),
-            'lng'      => '',
-            'lat'      => '',
-            'isp'      => ''
+            'country' => '',
+            'province' => $request['province'],
+            'city' => $request['city'],
+            'adcode' => $request['adcode'],
+            'lng' => '',
+            'lat' => '',
+            'isp' => ''
         ];
     }
 }

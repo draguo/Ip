@@ -14,51 +14,58 @@ class Ip
     /**
      * @var
      */
-    protected $driver = 'taobao';
+    protected $gateways = ['taobao'];
 
     public function __construct(array $config = [])
     {
         $this->config = new Config($config);
 
-        if ( ! empty($config['driver'])) {
-            $this->setDefaultDriver($config['driver']);
+        if (!empty($config)) {
+            $this->gateways = $config;
         }
     }
 
     public function toLocation($ip)
     {
-        try {
-            return $this->makeDriver($this->config)
-                        ->toLocation($ip, $this->config);
-        } catch (\Exception $exception) {
-            return [
-                'status'  => 0,
-                'message' => $exception->getMessage()
-            ];
+
+        $results = [];
+        $isSuccessful = false;
+
+        foreach ($this->gateways as $gateway => $config) {
+            try {
+                $results = $this->makeDriver($gateway, $config)->toLocation($ip);
+                $isSuccessful = true;
+
+                break;
+            } catch (\Exception $e) {
+                $results[$gateway] = [
+                    'gateway' => $gateway,
+                    'exception' => $e,
+                ];
+            } catch (\Throwable $e) {
+                $results[$gateway] = [
+                    'gateway' => $gateway,
+                    'exception' => $e,
+                ];
+            }
         }
+
+        if (!$isSuccessful) {
+            throw new \Exception($results);
+        }
+
+        return $results;
     }
 
     public function toLocationRaw($ip)
     {
         return $this->makeDriver($this->config)
-                    ->toLocationRaw($ip, $this->config);
+            ->toLocationRaw($ip, $this->config);
     }
 
-    /**
-     * @param $name
-     *
-     * @return $this
-     */
-    public function setDefaultDriver($name)
+    private function makeDriver($gateway, $config)
     {
-        $this->driver = $name;
-
-        return $this;
-    }
-
-    private function makeDriver($config)
-    {
-        $driverClass = $this->getClassName();
+        $driverClass = $this->getClassName($gateway);
 
         if (!class_exists($driverClass)) {
             throw new \Exception('driver does not exist');
@@ -67,10 +74,8 @@ class Ip
         return new $driverClass($config);
     }
 
-    protected function getClassName()
+    protected function getClassName($name)
     {
-        $name = $this->driver;
-
         if (class_exists($name)) {
             return $name;
         }
