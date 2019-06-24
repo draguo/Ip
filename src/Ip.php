@@ -2,7 +2,6 @@
 
 namespace Draguo\Ip;
 
-use Draguo\Ip\Exceptions\InvalidRequest;
 use Draguo\Ip\Support\Config;
 
 class Ip
@@ -38,11 +37,6 @@ class Ip
 
                 break;
             } catch (\Exception $e) {
-                $results[$gateway] = [
-                    'gateway' => $gateway,
-                    'exception' => $e,
-                ];
-            } catch (\Throwable $e) {
                 $results[$gateway] = [
                     'gateway' => $gateway,
                     'exception' => $e,
