@@ -2,6 +2,7 @@
 
 namespace Draguo\Ip;
 
+use Draguo\Ip\Exceptions\BadGateway;
 use Draguo\Ip\Support\Config;
 
 class Ip
@@ -45,7 +46,7 @@ class Ip
         }
 
         if (!$isSuccessful) {
-            throw new \Exception($results);
+            throw new BadGateway($results);
         }
 
         return $results;
